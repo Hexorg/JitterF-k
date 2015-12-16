@@ -46,9 +46,14 @@ int BrainfuckCompiler::compile(const char *code) {
 	 * ebx = memory start
 	 */
 	instruction = code;
+	setOffset(0);
+	setMemStart(memory);
 	while (*instruction != '\0') {
 		switch (*instruction) {
-			
+			case '+': incCell(); break;
+			case '-': decCell(); break;
+			case '>': incOffset(); break;
+			case '<': decOffset(); break;
 		}
 	}
 
