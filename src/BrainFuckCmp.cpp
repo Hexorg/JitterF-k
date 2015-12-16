@@ -86,9 +86,9 @@ int BrainfuckCompiler::compile(const char *code) {
 			case '>': incOffset(); break;
 			case '<': decOffset(); break;
 			case '[': startLoop(); break;
-			case ']': endLoop(); break;
-			case '.': outputChar(); break;
-			case ',': inputChar(); break;
+			case ']': endLoop(program); break;
+			case '.': callFunc(&outputChar); break;
+			case ',': callFunc(&inputChar); break;
 		}
 	}
 	ret();
@@ -98,16 +98,16 @@ void BrainfuckCompiler::setOffset(unsigned int value) {
 	program[program_ptr++] = 0xb8; // mov eax, value
 	program[program_ptr++] = value & 0xFF;
 	program[program_ptr++] = (value>>8) & 0xFF;
-	program[program_ptr++] = (value>>8) & 0xFF;
-	program[program_ptr++] = (value>>8) & 0xFF;
+	program[program_ptr++] = (value>>16) & 0xFF;
+	program[program_ptr++] = (value>>24) & 0xFF;
 }
 
 void BrainfuckCompiler::setMemStart(unsigned int value) {
 	program[program_ptr++] = 0xbb; // mov ebx, value
 	program[program_ptr++] = value & 0xFF;
 	program[program_ptr++] = (value>>8) & 0xFF;
-	program[program_ptr++] = (value>>8) & 0xFF;
-	program[program_ptr++] = (value>>8) & 0xFF;
+	program[program_ptr++] = (value>>16) & 0xFF;
+	program[program_ptr++] = (value>>24) & 0xFF;
 }
 
 void BrainfuckCompiler::incCell(void) {	
@@ -148,23 +148,29 @@ void BrainfuckCompiler::startLoop(void) {
 	// jz	end_loop ; to be calucalted in endLoop()
 	program[program_ptr++] = 0x0f;
 	program[program_ptr++] = 0x80;
-	program[program_ptr++] = 0x00;
-	program[program_ptr++] = 0x00;
-	program[program_ptr++] = 0x00;
-	program[program_ptr++] = 0x00;
 	data.loop_end_label = program_ptr;
+	program[program_ptr++] = 0x00;
+	program[program_ptr++] = 0x00;
+	program[program_ptr++] = 0x00;
+	program[program_ptr++] = 0x00;
 	loopStack.push(data);
 }
 
-void BrainfuckCompiler::endLoop(void) {
+void BrainfuckCompiler::endLoop(unsigned int program_offset) {
 	struct LoopData data = loopStack.pop();
-	// overwrite jz address in startLoop
+	unsigned int value = data.loop_start + program_offset;
 	// jmp start_loop
 	program[program_ptr++] = 0xe9;
-	program[program_ptr++] = 0x00;
-	program[program_ptr++] = 0x00;
-	program[program_ptr++] = 0x00;
-	program[program_ptr++] = 0x00;
+	program[program_ptr++] = (value) & 0xFF;
+	program[program_ptr++] = (value>>8) & 0xFF;
+	program[program_ptr++] = (value>>16) & 0xFF;
+	program[program_ptr++] = (value>>24) & 0xFF;
+	// overwrite jz address in startLoop
+	value = program_ptr + program_offset;
+	program[data.loop_end_label] = value & 0xFF;
+	program[data.loop_end_label+1] = (value>>8) & 0xFF;
+	program[data.loop_end_label+2] = (value>>16) & 0xFF;
+	program[data.loop_end_label+3] = (value>>24) & 0xFF;
 
 }
 
@@ -176,6 +182,14 @@ void BrainfuckCompiler::callFunc(void *ptr) {
 	program[program_ptr++] = (value>>8) & 0xff;
 	program[program_ptr++] = (value>>8) & 0xff;
 	program[program_ptr++] = (value>>8) & 0xff;
+}
+
+void BrainfuckCompiler::outputChar(char c) {
+	out.put(c);
+}
+
+char BrainfuckCompiler::inputChar(void) {
+	return in.get();
 }
 
 void BrainfuckCompiler::ret(void) {	
