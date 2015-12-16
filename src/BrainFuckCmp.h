@@ -8,7 +8,7 @@
 namespace Brainfuck {
 
 #define SUCCESS 0
-#define BAD_BRACKETSi -1
+#define BAD_BRACKETS -1
 #define INFINITE_LOOP -2
 
 	class BrainfuckCompiler {
@@ -25,6 +25,8 @@ namespace Brainfuck {
 			void decCell(void);
 			void incOffset(void);
 			void decOffset(void);
+			void startLoop(void);
+			void endLoop(void);
 			void callFunc(void *ptr);
 			void ret(void);
 			void 
