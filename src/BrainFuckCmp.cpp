@@ -35,6 +35,7 @@ int BrainfuckCompiler::compile(const char *code) {
 			if (loop_level < 0)
 				return BAD_BRACKETS;
 		}
+		instruction++;
 	}
 	if (loop_level != 0)
 		return BAD_BRACKETS;
@@ -62,6 +63,7 @@ int BrainfuckCompiler::compile(const char *code) {
 			case '.': callOutputChar(); break;
 			case ',': callInputChar(); break;
 		}
+		++instruction;
 	}
 	ret();
 }
