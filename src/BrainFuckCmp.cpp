@@ -1,4 +1,5 @@
 #include "BrainFuckCmp.h"
+#include <sys/mman.h>
 
 namespace Brainfuck {
 
@@ -14,6 +15,7 @@ BrainfuckCompiler::BrainfuckCompiler(): in(std::cin), out(std::cout) {
 
 BrainfuckCompiler::~BrainfuckCompiler() {
 	delete[] memory;
+	munmap(program, MEMORY_SIZE);
 }
 
 int BrainfuckCompiler::run() {
@@ -40,7 +42,11 @@ int BrainfuckCompiler::compile(const char *code) {
 	if (loop_level != 0)
 		return BAD_BRACKETS;
 	// Step 2: aquire memory
-	program = new char [MEMORY_SIZE];
+	program = (char *) mmap(NULL, MEMORY_SIZE, PROT_WRITE | PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (program == MAP_FAILED) {
+		out << "Can't allocate space for program" << std::endl;
+		return -1;
+	}
 	bf_program = (int(*)(void)) program;
 	program_ptr = 0;
 	//Step 3: compile
@@ -66,6 +72,10 @@ int BrainfuckCompiler::compile(const char *code) {
 		++instruction;
 	}
 	ret();
+	// Step 4: mark the code executable
+	out << "Program is at " << std::hex << (unsigned long) program << std::endl;
+	if (mprotect(program, MEMORY_SIZE, PROT_EXEC | PROT_READ) != 0)
+		out << "mprotect returned != 0" << std::endl;
 }
 
 void BrainfuckCompiler::setOffset(unsigned int value) {
