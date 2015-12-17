@@ -1,0 +1,79 @@
+     1 00000000 48B808070605040302-     mov rax, 0102030405060708h
+     2 00000009 01                 
+     3 0000000A B804030201              mov eax, 01020304h
+     4 0000000F 66B80201                mov ax, 0102h
+     5                                  
+     6 00000013 48BB08070605040302-     mov rbx, 0102030405060708h
+     7 0000001C 01                 
+     8 0000001D BB04030201              mov ebx, 01020304h
+     9 00000022 66BB0201                mov bx, 0102h
+    10                                  
+    11 00000026 48B908070605040302-     mov rcx, 0102030405060708h
+    12 0000002F 01                 
+    13 00000030 B904030201              mov ecx, 01020304h
+    14 00000035 66B90201                mov cx, 0102h
+    15                                  
+    16 00000039 48BA08070605040302-     mov rdx, 0102030405060708h
+    17 00000042 01                 
+    18 00000043 BA04030201              mov edx, 01020304h
+    19 00000048 66BA0201                mov dx, 0102h
+    20                                  
+    21 0000004C 48FFC0                  inc rax
+    22 0000004F 48FFC3                  inc rbx
+    23 00000052 48FFC1                  inc rcx
+    24 00000055 48FFC2                  inc rdx
+    25                                  
+    26 00000058 FFC0                    inc eax
+    27 0000005A FFC3                    inc ebx
+    28 0000005C FFC1                    inc ecx
+    29 0000005E FFC2                    inc edx
+    30                                  
+    31 00000060 48FFC8                  dec rax
+    32 00000063 48FFCB                  dec rbx
+    33 00000066 48FFC9                  dec rcx
+    34 00000069 48FFCA                  dec rdx
+    35                                  
+    36 0000006C FFC8                    dec eax
+    37 0000006E FFCB                    dec ebx
+    38 00000070 FFC9                    dec ecx
+    39 00000072 FFCA                    dec edx
+    40                                  
+    41 00000074 FE040B                  inc byte [rbx+rcx]
+    42 00000077 67FE040B                inc byte [ebx+ecx]
+    43                                  
+    44 0000007B FE0C0B                  dec byte [rbx+rcx]
+    45 0000007E 67FE0C0B                dec byte [ebx+ecx]
+    46                                  
+    47 00000082 488B040B                mov rax, [rbx+rcx]
+    48 00000086 678B040B                mov eax, [ebx+ecx]
+    49                                  
+    50 0000008A 4889040B                mov [rbx+rcx], rax
+    51 0000008E 6789040B                mov [ebx+ecx], eax
+    52                                  
+    53 00000092 4885C9                  test rcx, rcx
+    54 00000095 85C9                    test ecx, ecx
+    55 00000097 4885C0                  test rax, rax
+    56 0000009A 85C0                    test eax, eax
+    57                                  
+    58 0000009C 0F84(08070605)          je 0102030405060708h
+    59 000000A2 0F84(04030201)          je 01020304h
+    60                                  
+    61 000000A8 50                      push rax
+    62                                  
+    63 000000A9 58                      pop rax
+    64                                  
+    65 000000AA 53                      push rbx
+    66                                  
+    67 000000AB 5B                      pop rbx
+    68                                  
+    69 000000AC 51                      push rcx
+    70                                  
+    71 000000AD 59                      pop rcx
+    72                                  
+    73 000000AE E9(08070605)            jmp 0102030405060708h
+    74 000000B3 E9(04030201)            jmp 01020304h
+    75                                  
+    76 000000B8 E8(08070605)            call 0102030405060708h
+    77 000000BD E8(04030201)            call 01020304h
+    78                                  
+    79 000000C2 C3                      ret
