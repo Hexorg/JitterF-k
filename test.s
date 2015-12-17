@@ -1,3 +1,7 @@
+section .text
+	global _start
+
+_start:
 mov rax, 0102030405060708h
 mov eax, 01020304h
 mov ax, 0102h
@@ -7,6 +11,7 @@ mov ebx, 01020304h
 mov bx, 0102h
 
 mov rcx, 0102030405060708h
+
 mov ecx, 01020304h
 mov cx, 0102h
 
@@ -40,16 +45,19 @@ inc byte [ebx+ecx]
 dec byte [rbx+rcx]
 dec byte [ebx+ecx]
 
-mov rax, [rbx+rcx]
+mov al, [rbx+rcx]
 mov eax, [ebx+ecx]
 
 mov [rbx+rcx], rax
-mov [ebx+ecx], eax
+mov [ebx+ecx], al
+
+xor rax, rax
 
 test rcx, rcx
 test ecx, ecx
 test rax, rax
 test eax, eax
+test al, al
 
 je 0102030405060708h
 je 01020304h
@@ -73,3 +81,4 @@ call 0102030405060708h
 call 01020304h
 
 ret
+leave

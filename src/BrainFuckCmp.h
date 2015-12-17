@@ -20,6 +20,7 @@ namespace Brainfuck {
 			int compile(const char *code);
 			int run();
 		private:
+			void initFunction(void);
 			void setOffset(unsigned int value);
 			void setMemStart(void *ptr);
 			void incCell(void);
@@ -27,7 +28,7 @@ namespace Brainfuck {
 			void incOffset(void);
 			void decOffset(void);
 			void startLoop(void);
-			void endLoop(void *p_ptr);
+			void endLoop(void);
 			void callFunc(void *ptr);
 			void callOutputChar(void);
 			void callInputChar(void);
