@@ -18,71 +18,72 @@
     18 00000030 B904030201              mov ecx, 01020304h
     19 00000035 66B90201                mov cx, 0102h
     20                                  
-    21 00000039 48BA08070605040302-     mov rdx, 0102030405060708h
-    22 00000042 01                 
-    23 00000043 BA04030201              mov edx, 01020304h
-    24 00000048 66BA0201                mov dx, 0102h
-    25                                  
-    26 0000004C 48FFC0                  inc rax
-    27 0000004F 48FFC3                  inc rbx
-    28 00000052 48FFC1                  inc rcx
-    29 00000055 48FFC2                  inc rdx
-    30                                  
-    31 00000058 FFC0                    inc eax
-    32 0000005A FFC3                    inc ebx
-    33 0000005C FFC1                    inc ecx
-    34 0000005E FFC2                    inc edx
-    35                                  
-    36 00000060 48FFC8                  dec rax
-    37 00000063 48FFCB                  dec rbx
-    38 00000066 48FFC9                  dec rcx
-    39 00000069 48FFCA                  dec rdx
-    40                                  
-    41 0000006C FFC8                    dec eax
-    42 0000006E FFCB                    dec ebx
-    43 00000070 FFC9                    dec ecx
-    44 00000072 FFCA                    dec edx
-    45                                  
-    46 00000074 FE040B                  inc byte [rbx+rcx]
-    47 00000077 67FE040B                inc byte [ebx+ecx]
-    48                                  
-    49 0000007B FE0C0B                  dec byte [rbx+rcx]
-    50 0000007E 67FE0C0B                dec byte [ebx+ecx]
-    51                                  
-    52 00000082 8A040B                  mov al, [rbx+rcx]
-    53 00000085 678B040B                mov eax, [ebx+ecx]
-    54                                  
-    55 00000089 4889040B                mov [rbx+rcx], rax
-    56 0000008D 6788040B                mov [ebx+ecx], al
-    57                                  
-    58 00000091 4831C0                  xor rax, rax
+    21 00000039 8B3C0B                  mov edi, [rbx+rcx]
+    22                                  
+    23 0000003C 48BA08070605040302-     mov rdx, 0102030405060708h
+    24 00000045 01                 
+    25 00000046 BA04030201              mov edx, 01020304h
+    26 0000004B 66BA0201                mov dx, 0102h
+    27                                  
+    28 0000004F 48FFC0                  inc rax
+    29 00000052 48FFC3                  inc rbx
+    30 00000055 48FFC1                  inc rcx
+    31 00000058 48FFC2                  inc rdx
+    32                                  
+    33 0000005B FFC0                    inc eax
+    34 0000005D FFC3                    inc ebx
+    35 0000005F FFC1                    inc ecx
+    36 00000061 FFC2                    inc edx
+    37                                  
+    38 00000063 48FFC8                  dec rax
+    39 00000066 48FFCB                  dec rbx
+    40 00000069 48FFC9                  dec rcx
+    41 0000006C 48FFCA                  dec rdx
+    42                                  
+    43 0000006F FFC8                    dec eax
+    44 00000071 FFCB                    dec ebx
+    45 00000073 FFC9                    dec ecx
+    46 00000075 FFCA                    dec edx
+    47                                  
+    48 00000077 FE040B                  inc byte [rbx+rcx]
+    49 0000007A 67FE040B                inc byte [ebx+ecx]
+    50                                  
+    51 0000007E FE0C0B                  dec byte [rbx+rcx]
+    52 00000081 67FE0C0B                dec byte [ebx+ecx]
+    53                                  
+    54 00000085 8A040B                  mov al, [rbx+rcx]
+    55 00000088 678B040B                mov eax, [ebx+ecx]
+    56                                  
+    57 0000008C 4889040B                mov [rbx+rcx], rax
+    58 00000090 6788040B                mov [ebx+ecx], al
     59                                  
-    60 00000094 4885C9                  test rcx, rcx
-    61 00000097 85C9                    test ecx, ecx
-    62 00000099 4885C0                  test rax, rax
-    63 0000009C 85C0                    test eax, eax
-    64 0000009E 84C0                    test al, al
-    65                                  
-    66 000000A0 0F84(08070605)          je 0102030405060708h
-    67 000000A6 0F84(04030201)          je 01020304h
-    68                                  
-    69 000000AC 50                      push rax
+    60 00000094 4831C0                  xor rax, rax
+    61                                  
+    62 00000097 4885C9                  test rcx, rcx
+    63 0000009A 85C9                    test ecx, ecx
+    64 0000009C 4885C0                  test rax, rax
+    65 0000009F 85C0                    test eax, eax
+    66 000000A1 84C0                    test al, al
+    67                                  
+    68 000000A3 0F84(08070605)          je 0102030405060708h
+    69 000000A9 0F84(04030201)          je 01020304h
     70                                  
-    71 000000AD 58                      pop rax
-    72                                  
-    73 000000AE 53                      push rbx
-    74                                  
-    75 000000AF 5B                      pop rbx
-    76                                  
-    77 000000B0 51                      push rcx
-    78                                  
-    79 000000B1 59                      pop rcx
-    80                                  
-    81 000000B2 E9(08070605)            jmp 0102030405060708h
-    82 000000B7 E9(04030201)            jmp 01020304h
-    83                                  
-    84 000000BC E8(08070605)            call 0102030405060708h
-    85 000000C1 E8(04030201)            call 01020304h
-    86                                  
-    87 000000C6 C3                      ret
-    88 000000C7 C9                      leave
+    71 000000AF 50                      push rax
+    72 000000B0 58                      pop rax
+    73 000000B1 53                      push rbx
+    74 000000B2 5B                      pop rbx
+    75 000000B3 51                      push rcx
+    76 000000B4 59                      pop rcx
+    77                                  
+    78 000000B5 488B0C0B                mov rcx, [rbx+rcx]
+    79                                  
+    80 000000B9 E9(08070605)            jmp 0102030405060708h
+    81 000000BE E9(04030201)            jmp 01020304h
+    82                                  
+    83 000000C3 E8(08070605)            call 0102030405060708h
+    84 000000C8 E8(04030201)            call 01020304h
+    85                                  
+    86 000000CD 488B3C0B                mov rdi, [rbx+rcx]
+    87                                  
+    88 000000D1 C3                      ret
+    89 000000D2 C9                      leave

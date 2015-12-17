@@ -15,6 +15,8 @@ mov rcx, 0102030405060708h
 mov ecx, 01020304h
 mov cx, 0102h
 
+mov edi, [rbx+rcx]
+
 mov rdx, 0102030405060708h
 mov edx, 01020304h
 mov dx, 0102h
@@ -63,22 +65,21 @@ je 0102030405060708h
 je 01020304h
 
 push rax
-
 pop rax
-
 push rbx
-
 pop rbx
-
 push rcx
-
 pop rcx
+
+mov rcx, [rbx+rcx]
 
 jmp 0102030405060708h
 jmp 01020304h
 
 call 0102030405060708h
 call 01020304h
+
+mov rdi, [rbx+rcx]
 
 ret
 leave

@@ -84,9 +84,9 @@ int BrainfuckCompiler::compile(const char *code) {
 
 void BrainfuckCompiler::initFunction(void) {
 	program[program_ptr++] = 0x55; // push rbp
-	program[program_ptr++] = 0x48; // mov rbp, rsp
-	program[program_ptr++] = 0x89; 
-	program[program_ptr++] = 0xe5; 
+	//program[program_ptr++] = 0x48; // mov rbp, rsp
+	//program[program_ptr++] = 0x89; 
+	//program[program_ptr++] = 0xe5; 
 
 }
 
@@ -176,19 +176,21 @@ void BrainfuckCompiler::endLoop(void) {
 }
 
 void BrainfuckCompiler::callOutputChar(void) {
-	// xor rax, rax
+	// push rbx
+	program[program_ptr++] = 0x53;
+	// push rcx
+	program[program_ptr++] = 0x51;
+	// mov rdi, [rbx+rcx]
 	program[program_ptr++] = 0x48;
-	program[program_ptr++] = 0x31;
-	program[program_ptr++] = 0xC0;
-	// mov al, [rbx+rcx]
-	program[program_ptr++] = 0x8A;
-	program[program_ptr++] = 0x04;
+	program[program_ptr++] = 0x8b;
+	program[program_ptr++] = 0x3c;
 	program[program_ptr++] = 0x0b;
-	// push rax
-	program[program_ptr++] = 0x50;
+
 	callFunc((void *) &outputChar);
-	// pop rax	
-	program[program_ptr++] = 0x58;
+	// pop rcx	
+	program[program_ptr++] = 0x59;
+	// pop rbx	
+	program[program_ptr++] = 0x5B;
 }
 
 void BrainfuckCompiler::callInputChar(void) {
@@ -228,7 +230,7 @@ char BrainfuckCompiler::inputChar(void) {
 
 void BrainfuckCompiler::ret(void) {	
 
-	program[program_ptr++] = 0xc9; // ret
+	program[program_ptr++] = 0x5d; // ret
 	program[program_ptr++] = 0xc3; // ret
 
 }
