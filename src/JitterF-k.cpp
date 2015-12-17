@@ -11,8 +11,6 @@ int main() {
 	//char code[] = ".";
 	Brainfuck::BrainfuckCompiler bfc;
 	bfc.compile(code);
-	std::cout << "Result: '";
 	bfc.run();
-	std::cout << "'" << std::endl;
 }
 

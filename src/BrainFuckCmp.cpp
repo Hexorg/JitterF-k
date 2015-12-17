@@ -221,7 +221,6 @@ void BrainfuckCompiler::callFunc(void *ptr) {
 
 void BrainfuckCompiler::outputChar(char c) {	
 	std::cout.put(c);
-	std::cout.flush();
 }
 
 char BrainfuckCompiler::inputChar(void) {
