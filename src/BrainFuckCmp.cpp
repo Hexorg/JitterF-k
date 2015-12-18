@@ -5,13 +5,49 @@
 namespace Brainfuck {
 
 BrainfuckCompiler::BrainfuckCompiler(std::istream &in, std::ostream &out): in(in), out(out) { 
-	memory = new unsigned char [MEMORY_SIZE];
-	bf_program = 0;
+	
 }
 
 BrainfuckCompiler::BrainfuckCompiler(): in(std::cin), out(std::cout) {
+
+}
+
+void BrainfuckCompiler::init(void) {
 	memory = new unsigned char [MEMORY_SIZE];
-	bf_program = 0;
+
+	program = (char *) mmap(NULL, MEMORY_SIZE, PROT_WRITE | PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (program == MAP_FAILED) {
+		out << "Can't allocate space for program" << std::endl;
+		return -1;
+	}
+	bf_program = (int(*)(void)) program;
+	program_ptr = 0;
+
+	// copy function init code
+	for (i=0; i<sizeof(BF_START); ++i, ++program_ptr) {
+		program[program_ptr] = BF_START[i];
+	}
+	// copy the memory address
+	for (i=0; i<sizeof(&memory); ++i, ++program_ptr) {
+		program[ptrogram_ptr] = ((char *)(&memory))[i];
+	}
+	// copy the code to call outputChar()
+	for (i=0; i<sizeof(OUTPUT_CHAR_CODE); ++i) {
+		output_char_code[i] = OUTPUT_CHAR_CODE[i];
+	}
+	// copy the location to outputChar()
+	for (i=OUTPUT_CHAR_INSERT_PTR; i<sizeof(&outputChar); ++i) {
+		output_char_code[i] = ((char *)(&outputChar))[i-OUTPUT_CHAR_INSERT_PTR];
+	}
+	// copy the code to call inputChar()
+	for (i=0; i<sizeof(INPUT_CHAR_CODE); ++i) {
+		input_char_code[i] = INPUT_CHAR_CODE[i];
+	}
+	// copy the location to inputChar()
+	for (i=INPUT_CHAR_INSERT_PTR; i<sizeof(&inputChar); ++i) {
+		input_char_code[i] = ((char *)(&outputChar))[i-INPUT_CHAR_INSERT_PTR];
+	}
+
 }
 
 BrainfuckCompiler::~BrainfuckCompiler() {
@@ -20,56 +56,42 @@ BrainfuckCompiler::~BrainfuckCompiler() {
 }
 
 int BrainfuckCompiler::run() {
-	if (bf_program != 0) {
+	if (program_ptr != 0) {
 		return (*bf_program)();
 	}	
 }
 
 int BrainfuckCompiler::compile(const char *code) {
-	const char *instruction;
-	// Step 1: scan for open/close brackets
-	int loop_level = 0;
-	instruction = code;
-	while (*instruction != '\0') {
-		if (*instruction == '[')
-			++loop_level;
-		else if (*instruction == ']') {
-			--loop_level;
-			if (loop_level < 0)
-				return BAD_BRACKETS;
-		}
-		instruction++;
-	}
-	if (loop_level != 0)
-		return BAD_BRACKETS;
-	// Step 2: aquire memory
-	program = (char *) mmap(NULL, MEMORY_SIZE, PROT_WRITE | PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (program == MAP_FAILED) {
-		out << "Can't allocate space for program" << std::endl;
-		return -1;
-	}
-	bf_program = (int(*)(void)) program;
-	program_ptr = 0;
-	//Step 3: compile
+	const char *instruction = code;
+	// compile
 	/* BF ASM
 	 * ebx = memory offset
 	 * ecx = memory start
 	 * eax = contains [eax+ecx] before entering loop
 	 */
-	instruction = code;
-	initFunction();
-	setOffset(0);
-	setMemStart(memory);
+	//initFunction();
+	//setOffset(0);
+	//setMemStart(memory);
 	while (*instruction != '\0') {
 		switch (*instruction) {
-			case '+': incCell(); break;
-			case '-': decCell(); break;
-			case '>': incOffset(); break;
-			case '<': decOffset(); break;
+			case '+': program[program_ptr++] = 0xfe;
+					  program[program_ptr++] = 0x04;
+					  program[program_ptr++] = 0x0b; break;
+			case '-': program[program_ptr++] = 0xfe;
+					  program[program_ptr++] = 0x0c;
+					  program[program_ptr++] = 0x0b; break;
+			case '>': program[program_ptr++] = 0xff;
+					  program[program_ptr++] = 0xc3; break;
+			case '<': program[program_ptr++] = 0xff;
+					  program[program_ptr++] = 0xcb; break;
 			case '[': startLoop(); break;
 			case ']': endLoop(); break;
-			case '.': callOutputChar(); break;
-			case ',': callInputChar(); break;
+			case '.': for (i=0; i<sizeof(output_char_code); ++i, ++program_ptr) {
+					  	  program[program_ptr] = output_char_code[i];
+					  } break;
+			case ',': for (i=0; i<sizeof(input_char_code); ++i, ++program_ptr) {
+						  program[program_ptr] = input_char_code[i];
+					  } break;
 		}
 		++instruction;
 	}
@@ -83,11 +105,7 @@ int BrainfuckCompiler::compile(const char *code) {
 }
 
 void BrainfuckCompiler::initFunction(void) {
-	program[program_ptr++] = 0x55; // push rbp
-	//program[program_ptr++] = 0x48; // mov rbp, rsp
-	//program[program_ptr++] = 0x89; 
-	//program[program_ptr++] = 0xe5; 
-
+	/**/ program[program_ptr++] = 0x55; // push rbp
 }
 
 void BrainfuckCompiler::setOffset(unsigned int value) {
@@ -177,9 +195,9 @@ void BrainfuckCompiler::endLoop(void) {
 
 void BrainfuckCompiler::callOutputChar(void) {
 	// push rbx
-	program[program_ptr++] = 0x53;
+	/**/ program[program_ptr++] = 0x53;
 	// push rcx
-	program[program_ptr++] = 0x51;
+	/**/ program[program_ptr++] = 0x51;
 	// mov rdi, [rbx+rcx]
 	program[program_ptr++] = 0x48;
 	program[program_ptr++] = 0x8b;
@@ -188,9 +206,9 @@ void BrainfuckCompiler::callOutputChar(void) {
 
 	callFunc((void *) &outputChar);
 	// pop rcx	
-	program[program_ptr++] = 0x59;
+	/**/ program[program_ptr++] = 0x59;
 	// pop rbx	
-	program[program_ptr++] = 0x5B;
+	/**/ program[program_ptr++] = 0x5B;
 }
 
 void BrainfuckCompiler::callInputChar(void) {
@@ -229,7 +247,7 @@ char BrainfuckCompiler::inputChar(void) {
 
 void BrainfuckCompiler::ret(void) {	
 
-	program[program_ptr++] = 0x5d; // ret
+	/**/ program[program_ptr++] = 0x5d; // pop RBP
 	program[program_ptr++] = 0xc3; // ret
 
 }
