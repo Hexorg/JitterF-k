@@ -22,6 +22,7 @@ void BrainfuckCompiler::init(void) {
 	}
 	bf_program = (int(*)(void)) program;
 	program_ptr = 0;
+	stack_ptr = 0;
 
 	// copy function init code
 	for (i=0; i<sizeof(BF_START); ++i, ++program_ptr) {
@@ -63,6 +64,7 @@ int BrainfuckCompiler::run() {
 
 int BrainfuckCompiler::compile(const char *code) {
 	const char *instruction = code;
+	unsigned int tmp, tmp2;
 	// compile
 	/* BF ASM
 	 * ebx = memory offset
@@ -84,8 +86,23 @@ int BrainfuckCompiler::compile(const char *code) {
 					  program[program_ptr++] = 0xc3; break;
 			case '<': program[program_ptr++] = 0xff;
 					  program[program_ptr++] = 0xcb; break;
-			case '[': startLoop(); break;
-			case ']': endLoop(); break;
+			case '[': loop_stack[stack_ptr++] = program_ptr;
+					  for (i=0; i<sizeof(START_LOOP_CODE); ++i, ++program_ptr) {
+						  program[program_ptr] = START_LOOP_CODE[i];
+					  } break;
+			case ']': stack_ptr--;
+					  if (stack_ptr < 0)
+						 return -1;
+					  tmp = loop_stack[stack_ptr] - program_ptr - 5;
+					  program[program_ptr++] = 0xe9; 
+					  for (i=0; i<sizeof(tmp); ++i, ++program_ptr) {
+						  program[program_ptr] = ((char *)(&tmp))[i];
+					  }
+					  tmp2 = program_ptr - loop_stack[stack_ptr] - START_LOOP_INSERT_PTR - 4;
+					  for (i=0, tmp=loop_stack[stack_ptr]+START_LOOP_INSERT_PTR; i<sizeof(tmp); ++i, ++tmp) {
+						  program[tmp] = ((char *)(&tmp))[i];
+					  }
+					  break;
 			case '.': for (i=0; i<sizeof(output_char_code); ++i, ++program_ptr) {
 					  	  program[program_ptr] = output_char_code[i];
 					  } break;

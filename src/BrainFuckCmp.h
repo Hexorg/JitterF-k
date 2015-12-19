@@ -4,7 +4,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
-#include <stack>
 
 namespace Brainfuck {
 
@@ -42,10 +41,11 @@ namespace Brainfuck {
 			std::istream &in;
 			std::ostream &out;
 			struct LoopData {unsigned int loop_start; unsigned int loop_end_label;};
-			std::stack<struct LoopData> loopStack;
-			
 			static const unsigned int MEMORY_SIZE = 4096;
 			static const int BAD_BRACKETS = -1;
+
+			unsigned int loop_stack[128]; // max of 128 nested loops
+			int stack_ptr;
 
 			char output_char_code[sizeof(OUTPUT_CHAR_CODE)];
 			char input_char_code[sizeof(INPUT_CHAR_CODE)];
